@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import threading
 import time
 import json
+import os
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*", logger=True, engineio_logger=True)
@@ -75,6 +76,11 @@ def update_sheets_webhook():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+# Route to serve MP3 files
+@app.route('/audio/<filename>')
+def serve_audio(filename):
+    return send_from_directory('static/audio', filename)
 
 @app.route("/select_game", methods=["GET", "POST"])
 def select_game():
