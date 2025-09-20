@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Game - Codechella Carnival</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --carnival-red: #E63946;
+            --carnival-blue: #3A86FF;
+            --carnival-yellow: #FFB703;
+            --carnival-orange: #FB8500;
+            --carnival-purple: #8338EC;
+            --carnival-green: #2A9D8F;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #3a0ca3 0%, #1a1a2e 100%);
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--carnival-yellow);
+            text-shadow: 3px 3px 0 var(--carnival-red);
+            animation: bounce 2s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-10px) scale(1.05); }
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--carnival-blue);
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        .game-form {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--carnival-yellow);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: var(--carnival-yellow);
+            text-align: center;
+        }
+        
+        select {
+            width: 100%;
+            padding: 18px 25px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--carnival-yellow);
+            color: white;
+            font-size: 1.2rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFB703' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 20px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--carnival-orange);
+            box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+        }
+        
+        option {
+            background: var(--dark);
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--carnival-yellow), var(--carnival-orange));
+            color: var(--dark);
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .game-icons {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .game-icon {
+            font-size: 3.5rem;
+            color: var(--carnival-yellow);
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 0 var(--carnival-red);
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        .game-icon:nth-child(1) { animation-delay: 0s; }
+        .game-icon:nth-child(2) { animation-delay: 0.5s; }
+        .game-icon:nth-child(3) { animation-delay: 1s; }
+        .game-icon:nth-child(4) { animation-delay: 1.5s; }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        .game-icon:hover {
+            transform: scale(1.3) rotate(10deg);
+            color: var(--carnival-orange);
+        }
+        
+        /* Carnival decorations */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .balloon {
+            width: 60px;
+            height: 70px;
+            border-radius: 50%;
+            position: fixed;
+            animation: floatUp 15s linear infinite;
+            opacity: 0.7;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            opacity: 0.7;
+            animation: confettiFall 8s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% { 
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+        
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+        
+        /* Floating text elements */
+        .floating-text {
+            position: fixed;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            z-index: 7;
+            pointer-events: none;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            animation: floatAround 20s infinite linear;
+        }
+        
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(5vw, -5vh) rotate(5deg);
+            }
+            50% {
+                transform: translate(0, -10vh) rotate(0deg);
+            }
+            75% {
+                transform: translate(-5vw, -5vh) rotate(-5deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+        }
+        
+        /* Carnival wheel */
+        .carnival-wheel {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border: 5px solid rgba(255, 183, 3, 0.1);
+            border-radius: 50%;
+            animation: spin 20s linear infinite;
+            z-index: 5;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .game-form {
+                padding: 30px 20px;
+            }
+            
+            select {
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            
+            .btn {
+                padding: 15px 40px;
+                font-size: 1.2rem;
+            }
+            
+            .game-icons {
+                gap: 25px;
+            }
+            
+            .game-icon {
+                font-size: 2.8rem;
+            }
+            
+            .floating-text {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Choose Your Challenge</h1>
+            <p class="subtitle">Select a game to begin the carnival competition!</p>
+        </header>
+        
+        <form method="POST" class="game-form">
+            <div class="form-group">
+                <label for="game">Game Selection:</label>
+                <select name="game" id="game">
+                    {% for sheet in sheet_names %}
+                    <option value="{{ sheet }}">{{ sheet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="btn">Start Game</button>
+        </form>
+        
+        <div class="game-icons">
+            <div class="game-icon">🎮</div>
+            <div class="game-icon">🧩</div>
+            <div class="game-icon">🏆</div>
+            <div class="game-icon">⚡</div>
+        </div>
+    </div>
+
+    <!-- Carnival decorations -->
+    <div class="carnival-wheel" style="top: 15%; left: 5%;"></div>
+    <div class="carnival-wheel" style="top: 25%; right: 8%;"></div>
+
+    <script>
+        // Create carnival decorations
+        function createDecorations() {
+            const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
+            
+            // Create balloons
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.classList.add('decoration');
+                
+                // Position on sides only (not center)
+                const side = Math.random() > 0.5 ? 'left' : 'right';
+                const offset = Math.random() * 40; // 0-40% from side
+                
+                balloon.style[side] = `${offset}%`;
+                balloon.style.animationDelay = `${Math.random() * 15}s`;
+                balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+                balloon.style.clipPath = 'polygon(50% 0%, 61% 23%, 82% 21%, 68% 40%, 79% 62%, 50% 50%, 21% 62%, 32% 40%, 18% 21%, 39% 23%)';
+                
+                document.body.appendChild(balloon);
+            }
+            
+            // Create confetti
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.classList.add('decoration');
+                
+                // Keep confetti away from center
+                let position;
+                if (Math.random() > 0.5) {
+                    position = Math.random() * 40; // Left side
+                    confetti.style.left = `${position}%`;
+                } else {
+                    position = Math.random() * 40 + 60; // Right side
+                    confetti.style.left = `${position}%`;
+                }
+                
+                confetti.style.animationDelay = `${Math.random() * 8}s`;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 15 + 5}px`;
+                confetti.style.height = `${Math.random() * 8 + 5}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+            }
+        }
+        
+        // Create floating text elements
+        function createFloatingText() {
+            const texts = ["CODE", "PLAY", "WIN", "TECH", "FUN", "GAMES", "CREATE", "JOIN"];
+            
+            for (let i = 0; i < 15; i++) {
+                const textEl = document.createElement('div');
+                textEl.classList.add('floating-text');
+                textEl.textContent = texts[Math.floor(Math.random() * texts.length)];
+                
+                // Position in corners and edges, avoiding center
+                let startX, startY;
+                
+                // Determine which area to place the text
+                const area = Math.floor(Math.random() * 4);
+                
+                if (area === 0) {
+                    // Top-left area
+                    startX = Math.random() * 30;
+                    startY = Math.random() * 30;
+                } else if (area === 1) {
+                    // Top-right area
+                    startX = Math.random() * 30 + 70;
+                    startY = Math.random() * 30;
+                } else if (area === 2) {
+                    // Bottom-left area
+                    startX = Math.random() * 30;
+                    startY = Math.random() * 30 + 70;
+                } else {
+                    // Bottom-right area
+                    startX = Math.random() * 30 + 70;
+                    startY = Math.random() * 30 + 70;
+                }
+                
+                // Set initial position
+                textEl.style.left = `${startX}%`;
+                textEl.style.top = `${startY}%`;
+                
+                // Random delay and duration
+                textEl.style.animationDelay = `${Math.random() * 5}s`;
+                textEl.style.animationDuration = `${15 + Math.random() * 10}s`;
+                
+                // Random color with low opacity
+                const hue = Math.random() * 360;
+                textEl.style.color = `hsla(${hue}, 70%, 60%, 0.3)`;
+                
+                document.body.appendChild(textEl);
+            }
+        }
+        
+        // Initialize decorations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createDecorations();
+            createFloatingText();
+        });
+    </script>
+</body>
+</html>

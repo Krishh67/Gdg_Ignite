@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codechella Carnival Experience </title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    /* Load the custom Hertical font using @font-face */
+    @font-face {
+        font-family: 'Hertical';  /* Custom name for the font */
+        src: url_for('{{ url_for('static', filename = "font/title_text.ttf") }}') format('truetype');
+        font-weight:normal;
+        font-style :active;
+        
+    }
+
+    /* Apply the custom Hertical font to h1 */
+    h1 {
+        font-family: 'Hertical', sans-serif;  /* Use the Hertical font */
+        font-size: 3rem;
+        color: #333;
+        text-align: center;
+    }
+
+    /* Universal reset to remove margin/padding and set box-sizing */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Global font */
+    }
+        
+        body {
+            background: #1a1a2e;
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Curtains styling */
+        .curtains-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 100;
+            display: flex;
+            pointer-events: none;
+        }
+        
+        .curtain {
+            flex: 1;
+            height: 100%;
+            background: linear-gradient(to bottom, #9d0208, #e63946, #9d0208);
+            position: relative;
+            transition: transform 1.8s cubic-bezier(0.65, 0, 0.35, 1);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+        }
+        
+        .curtain::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 30px,
+                rgba(0, 0, 0, 0.2) 30px,
+                rgba(0, 0, 0, 0.2) 40px
+            );
+        }
+        
+        .curtain-left {
+            transform: translateY(0);
+            border-right: 5px solid #ffb703;
+        }
+        
+        .curtain-right {
+            transform: translateY(0);
+            border-left: 5px solid #ffb703;
+        }
+        
+        .curtains-open .curtain-left {
+            transform: translateY(-100%);
+        }
+        
+        .curtains-open .curtain-right {
+            transform: translateY(100%);
+        }
+        
+        .curtain-fringe {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: repeating-linear-gradient(
+                90deg,
+                #ffb703,
+                #ffb703 15px,
+                #9d0208 15px,
+                #9d0208 30px
+            );
+        }
+        
+        .curtain-pull {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            background: #ffb703;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a2e;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+        
+        .curtain-pull:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 7px 25px rgba(0, 0, 0, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 183, 3, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0); }
+        }
+        
+        /* Hidden content */
+        .hidden-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 99;
+            background: radial-gradient(circle at center, #3a0ca3 0%, #1a1a2e 100%);
+            overflow: hidden;
+        }
+        
+        .content-visible {
+            opacity: 1;
+        }
+        
+        .main-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 40px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffb703;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .carnival-title {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #ffb703;
+            text-shadow: 4px 4px 0 #e63946;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-15px) scale(1.05); }
+        }
+        
+        .subtitle {
+            font-size: 2rem;
+            color: #3a86ff;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 40px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            color: #1a1a2e;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Carnival decorations */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .balloon {
+            width: 60px;
+            height: 70px;
+            border-radius: 50%;
+            position: fixed;
+            animation: float 15s linear infinite;
+            opacity: 0;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            animation: confettiFall 8s linear infinite;
+        }
+        
+        .curtains-open .balloon,
+        .curtains-open .confetti {
+            opacity: 1;
+        }
+        
+        @keyframes float {
+            0% { 
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+        
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+        
+        /* Celebration booms */
+        .celebration-boom {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 8px solid #ffb703;
+            border-radius: 50%;
+            opacity: 0;
+            animation: boom 1s ease-out;
+            z-index: 8;
+        }
+        
+        @keyframes boom {
+            0% {
+                transform: scale(0.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        /* Floating text elements - UPDATED TO PERSIST */
+        .floating-text {
+            position: fixed;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            z-index: 7;
+            pointer-events: none;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            animation: floatAround 20s infinite linear;
+            opacity: 0.7;
+        }
+        
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(5vw, -5vh) rotate(5deg);
+            }
+            50% {
+                transform: translate(0, -10vh) rotate(0deg);
+            }
+            75% {
+                transform: translate(-5vw, -5vh) rotate(-5deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+        }
+        
+        /* Firework effects */
+
+        .firework {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+            opacity: 0;
+            z-index: 6;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(2);
+                opacity: 0;
+            }
+        }
+        
+        /* Carnival wheel */
+        .carnival-wheel {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border: 5px solid rgba(255, 183, 3, 0.1);
+            border-radius: 50%;
+            animation: spin 20s linear infinite;
+            z-index: 5;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .carnival-title {
+                font-size: 3.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 15px 40px;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+                margin: 0 20px;
+            }
+            
+            .floating-text {
+                font-size: 1.4rem;
+            }
+            
+            .carnival-wheel {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Curtains -->
+    <div class="curtains-container">
+        <div class="curtain curtain-left">
+            <div class="curtain-fringe"></div>
+        </div>
+        <div class="curtain curtain-right">
+            <div class="curtain-fringe"></div>
+        </div>
+    </div>
+    
+    <!-- Pull button -->
+    <div class="curtain-pull" id="curtain-pull">
+        <i class="fas fa-arrow-down"></i>
+    </div>
+    
+    <!-- Hidden content -->
+    <div class="hidden-content" id="hidden-content">
+        <!-- Carnival wheels -->
+        <div class="carnival-wheel" style="top: 20%; left: 10%;"></div>
+        <div class="carnival-wheel" style="top: 30%; right: 15%;"></div>
+        
+        <!-- Main content container -->
+        <div class="main-content">
+            <h1 class="carnival-title">CODECHELLA</h1>
+            <p class="subtitle">Ignite 8.0 Carnival</p>
+            <form action="/select_game" method="get">
+                <button type="submit" class="btn">Enter the Carnival</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Open curtains when pull is clicked
+        document.getElementById('curtain-pull').addEventListener('click', function() {
+            document.querySelector('.curtains-container').classList.add('curtains-open');
+            document.getElementById('hidden-content').classList.add('content-visible');
+            
+            // Hide the pull button after click
+            this.style.opacity = '0';
+            this.style.pointerEvents = 'none';
+            
+            // Create carnival decorations
+            createDecorations();
+            
+            // Create celebration booms
+            createCelebrationBooms();
+            
+            // Create floating text
+            createFloatingText();
+            
+            // Create fireworks
+            createFireworks();
+        });
+        
+        // Create carnival decorations
+        function createDecorations() {
+            const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
+            
+            // Create balloons (only on sides, not center)
+            for (let i = 0; i < 20; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.classList.add('decoration');
+                
+                // Position on sides only (not center)
+                const side = Math.random() > 0.5 ? 'left' : 'right';
+                const offset = Math.random() * 40; // 0-40% from side
+                
+                balloon.style[side] = `${offset}%`;
+                balloon.style.animationDelay = `${Math.random() * 15}s`;
+                balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+                balloon.style.clipPath = 'polygon(50% 0%, 61% 23%, 82% 21%, 68% 40%, 79% 62%, 50% 50%, 21% 62%, 32% 40%, 18% 21%, 39% 23%)';
+                
+                document.body.appendChild(balloon);
+            }
+            
+            // Create confetti (avoiding center area)
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.classList.add('decoration');
+                
+                // Keep confetti away from center
+                let position;
+                if (Math.random() > 0.5) {
+                    position = Math.random() * 40; // Left side
+                    confetti.style.left = `${position}%`;
+                } else {
+                    position = Math.random() * 40 + 60; // Right side
+                    confetti.style.left = `${position}%`;
+                }
+                
+                confetti.style.animationDelay = `${Math.random() * 8}s`;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 15 + 5}px`;
+                confetti.style.height = `${Math.random() * 8 + 5}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+            }
+        }
+        
+        // Create celebration booms (positioned away from center)
+        function createCelebrationBooms() {
+            const content = document.getElementById('hidden-content');
+            const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
+            
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    const boom = document.createElement('div');
+                    boom.classList.add('celebration-boom');
+                    
+                    // Position booms away from center
+                    let left, top;
+                    if (i % 4 === 0) {
+                        // Top left
+                        left = Math.random() * 30;
+                        top = Math.random() * 30;
+                    } else if (i % 4 === 1) {
+                        // Top right
+                        left = Math.random() * 30 + 70;
+                        top = Math.random() * 30;
+                    } else if (i % 4 === 2) {
+                        // Bottom left
+                        left = Math.random() * 30;
+                        top = Math.random() * 30 + 70;
+                    } else {
+                        // Bottom right
+                        left = Math.random() * 30 + 70;
+                        top = Math.random() * 30 + 70;
+                    }
+                    
+                    boom.style.left = `${left}%`;
+                    boom.style.top = `${top}%`;
+                    boom.style.borderColor = colors[Math.floor(Math.random() * colors.length)];
+                    content.appendChild(boom);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        if (boom.parentNode) {
+                            content.removeChild(boom);
+                        }
+                    }, 1000);
+                }, i * 400);
+            }
+        }
+        
+        // Create floating text elements - UPDATED TO PERSIST
+        function createFloatingText() {
+            const texts = ["CODE", "PLAY", "WIN", "TECH", "FUN", "GAMES", "CREATE", "JOIN"];
+            const content = document.getElementById('hidden-content');
+            
+            for (let i = 0; i < 20; i++) {
+                const textEl = document.createElement('div');
+                textEl.classList.add('floating-text');
+                textEl.textContent = texts[Math.floor(Math.random() * texts.length)];
+                
+                // Position in corners and edges, avoiding center
+                let startX, startY;
+                
+                // Determine which area to place the text
+                const area = Math.floor(Math.random() * 4);
+                
+                if (area === 0) {
+                    // Top-left area
+                    startX = Math.random() * 30;
+                    startY = Math.random() * 30;
+                } else if (area === 1) {
+                    // Top-right area
+                    startX = Math.random() * 30 + 70;
+                    startY = Math.random() * 30;
+                } else if (area === 2) {
+                    // Bottom-left area
+                    startX = Math.random() * 30;
+                    startY = Math.random() * 30 + 70;
+                } else {
+                    // Bottom-right area
+                    startX = Math.random() * 30 + 70;
+                    startY = Math.random() * 30 + 70;
+                }
+                
+                // Set initial position
+                textEl.style.left = `${startX}%`;
+                textEl.style.top = `${startY}%`;
+                
+                // Random delay and duration
+                textEl.style.animationDelay = `${Math.random() * 5}s`;
+                textEl.style.animationDuration = `${15 + Math.random() * 10}s`;
+                
+                // Random color with low opacity
+                const hue = Math.random() * 360;
+                textEl.style.color = `hsla(${hue}, 70%, 60%, 0.3)`;
+                
+                content.appendChild(textEl);
+            }
+        }
+        
+        // Create firework effects
+        function createFireworks() {
+            const content = document.getElementById('hidden-content');
+            
+            for (let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    createFirework();
+                }, i * 150);
+            }
+        }
+        
+        // Create individual firework
+        function createFirework() {
+            const content = document.getElementById('hidden-content');
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight / 2;
+            const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+            
+            for (let i = 0; i < 30; i++) {
+                const angle = (i / 30) * Math.PI * 2;
+                const distance = Math.random() * 100 + 50;
+                
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                firework.style.left = `${x}px`;
+                firework.style.top = `${y}px`;
+                firework.style.background = color;
+                firework.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                firework.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+                
+                content.appendChild(firework);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    if (firework.parentNode) {
+                        content.removeChild(firework);
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

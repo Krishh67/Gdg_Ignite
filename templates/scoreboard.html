@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Dashboard - Codechella Carnival</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --carnival-red: #E63946;
+            --carnival-blue: #3A86FF;
+            --carnival-yellow: #FFB703;
+            --carnival-orange: #FB8500;
+            --carnival-purple: #8338EC;
+            --carnival-green: #2A9D8F;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --team1-color: #FFB703;
+            --team2-color: #3A86FF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #3a0ca3 0%, #1a1a2e 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            color: var(--carnival-yellow);
+            text-shadow: 3px 3px 0 var(--carnival-red);
+            margin-bottom: 10px;
+            animation: bounce 2s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-10px) scale(1.05); }
+        }
+        
+        .game-name {
+            font-size: 2rem;
+            color: var(--carnival-blue);
+            text-shadow: 1px 1px 0 #000;
+            margin-bottom: 20px;
+        }
+        
+        /* Competition Arena */
+        .competition-arena {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .team {
+            flex: 1;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .team-1 {
+            border-color: var(--team1-color);
+        }
+        
+        .team-2 {
+            border-color: var(--team2-color);
+        }
+        
+        .team-name {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .team-1 .team-name {
+            color: var(--team1-color);
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .team-2 .team-name {
+            color: var(--team2-color);
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .score-card {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .score-label {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .score-label i {
+            font-size: 1.5rem;
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            transition: all 0.5s ease;
+        }
+        
+        .team-1 .score-value {
+            color: var(--team1-color);
+        }
+        
+        .team-2 .score-value {
+            color: var(--team2-color);
+        }
+        
+        /* Ticket Stub Design */
+        .ticket-stub {
+            background: linear-gradient(135deg, #8338EC, #3A86FF);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            border: 2px dashed #FFB703;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+        
+        .ticket-stub::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 30px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .ticket-stub::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 30px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .ticket-count {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #FFB703;
+            text-shadow: 1px 1px 0 #000;
+            margin: 10px 0;
+        }
+        
+        .ticket-label {
+            font-size: 1.1rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Credit Design */
+        .credit-display {
+            background: linear-gradient(135deg, #FFB703, #FB8500);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.5);
+            border: 3px solid #FB8500;
+        }
+        
+        .credit-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        
+        .credit-label {
+            font-size: 0.9rem;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        /* Progress bars */
+        .progress-container {
+            margin: 30px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .progress-bg {
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        
+        .credits-progress .progress-fill {
+            background: linear-gradient(90deg, var(--carnival-yellow), var(--carnival-orange));
+        }
+        
+        .tickets-progress .progress-fill {
+            background: linear-gradient(90deg, var(--carnival-purple), var(--carnival-blue));
+        }
+        
+        /* Score table */
+        .score-table {
+            width: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--carnival-yellow);
+            margin-bottom: 40px;
+        }
+        
+        .score-table th, .score-table td {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .score-table th {
+            background: linear-gradient(135deg, var(--carnival-yellow), var(--carnival-orange));
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .score-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .team-1-row {
+            background: rgba(255, 183, 3, 0.1) !important;
+        }
+        
+        .team-2-row {
+            background: rgba(58, 134, 255, 0.1) !important;
+        }
+        
+        /* Celebration elements */
+        .team-celebration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .celebration-boom {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 8px solid;
+            border-radius: 50%;
+            opacity: 0;
+            animation: boom 1s ease-out;
+        }
+        
+        @keyframes boom {
+            0% {
+                transform: scale(0.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        /* Carnival decorations */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .balloon {
+            width: 60px;
+            height: 70px;
+            border-radius: 50%;
+            position: fixed;
+            animation: floatUp 15s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes floatUp {
+            0% { 
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .competition-arena {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .game-name {
+                font-size: 1.5rem;
+            }
+            
+            .team-name {
+                font-size: 1.7rem;
+            }
+            
+            .score-value {
+                font-size: 2rem;
+            }
+            
+            .credit-display {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .credit-amount {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HEAD-TO-HEAD SHOWDOWN</h1>
+            <div class="game-name">Game: {{ game }}</div>
+        </header>
+        
+        <div class="competition-arena">
+            <div class="team team-1">
+                <div class="team-celebration" id="team1-celebration"></div>
+                <div class="team-name">Team 1</div>
+                
+                <div class="credit-display">
+                    <div class="credit-amount" id="team1_balance">{{ team1_balance }}</div>
+                    <div class="credit-label">Credits</div>
+                </div>
+                
+                <div class="ticket-stub">
+                    <div class="ticket-label">Tickets Won</div>
+                    <div class="ticket-count" id="team1_tickets">{{ team1_tickets }}</div>
+                    <div class="ticket-label">🎫 Collect & Win! 🎫</div>
+                </div>
+                
+                <div class="progress-container credits-progress">
+                    <div class="progress-label">
+                        <span>Credits Progress</span>
+                        <span id="team1_credits_percent">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="team1_credits_bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-container tickets-progress">
+                    <div class="progress-label">
+                        <span>Tickets Progress</span>
+                        <span id="team1_tickets_percent">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="team1_tickets_bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="team team-2">
+                <div class="team-celebration" id="team2-celebration"></div>
+                <div class="team-name">Team 2</div>
+                
+                <div class="credit-display">
+                    <div class="credit-amount" id="team2_balance">{{ team2_balance }}</div>
+                    <div class="credit-label">Credits</div>
+                </div>
+                
+                <div class="ticket-stub">
+                    <div class="ticket-label">Tickets Won</div>
+                    <div class="ticket-count" id="team2_tickets">{{ team2_tickets }}</div>
+                    <div class="ticket-label">🎫 Collect & Win! 🎫</div>
+                </div>
+                
+                <div class="progress-container credits-progress">
+                    <div class="progress-label">
+                        <span>Credits Progress</span>
+                        <span id="team2_credits_percent">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="team2_credits_bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-container tickets-progress">
+                    <div class="progress-label">
+                        <span>Tickets Progress</span>
+                        <span id="team2_tickets_percent">0%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="team2_tickets_bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="score-table">
+            <tr>
+                <th>Team</th>
+                <th>Credits</th>
+                <th>Tickets Won</th>
+            </tr>
+            <tr class="team-1-row">
+                <td>Team 1</td>
+                <td id="team1_balance_table">{{ team1_balance }}</td>
+                <td id="team1_tickets_table">{{ team1_tickets }}</td>
+            </tr>
+            <tr class="team-2-row">
+                <td>Team 2</td>
+                <td id="team2_balance_table">{{ team2_balance }}</td>
+                <td id="team2_tickets_table">{{ team2_tickets }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const socket = io({ transports: ['polling'], timeout: 10000 });
+            const gameName = "{{ game }}";
+            
+            // Store previous values to detect increases
+            let prevTeam1Tickets = parseInt("{{ team1_tickets }}") || 0;
+            let prevTeam2Tickets = parseInt("{{ team2_tickets }}") || 0;
+            
+            // Initialize max values for progress bars
+            let maxCredits = Math.max(parseInt("{{ team1_balance }}") || 0, parseInt("{{ team2_balance }}") || 0, 100);
+            let maxTickets = Math.max(parseInt("{{ team1_tickets }}") || 0, parseInt("{{ team2_tickets }}") || 0, 100);
+            
+            // Update progress bars
+            function updateProgressBars() {
+                const team1Balance = parseInt(document.getElementById('team1_balance').textContent) || 0;
+                const team2Balance = parseInt(document.getElementById('team2_balance').textContent) || 0;
+                const team1Tickets = parseInt(document.getElementById('team1_tickets').textContent) || 0;
+                const team2Tickets = parseInt(document.getElementById('team2_tickets').textContent) || 0;
+                
+                // Update max values if needed
+                maxCredits = Math.max(maxCredits, team1Balance, team2Balance);
+                maxTickets = Math.max(maxTickets, team1Tickets, team2Tickets);
+                
+                // Update Team 1 progress bars
+                const team1CreditsPercent = Math.min(100, (team1Balance / maxCredits) * 100);
+                const team1TicketsPercent = Math.min(100, (team1Tickets / maxTickets) * 100);
+                
+                document.getElementById('team1_credits_bar').style.width = `${team1CreditsPercent}%`;
+                document.getElementById('team1_tickets_bar').style.width = `${team1TicketsPercent}%`;
+                document.getElementById('team1_credits_percent').textContent = `${Math.round(team1CreditsPercent)}%`;
+                document.getElementById('team1_tickets_percent').textContent = `${Math.round(team1TicketsPercent)}%`;
+                
+                // Update Team 2 progress bars
+                const team2CreditsPercent = Math.min(100, (team2Balance / maxCredits) * 100);
+                const team2TicketsPercent = Math.min(100, (team2Tickets / maxTickets) * 100);
+                
+                document.getElementById('team2_credits_bar').style.width = `${team2CreditsPercent}%`;
+                document.getElementById('team2_tickets_bar').style.width = `${team2TicketsPercent}%`;
+                document.getElementById('team2_credits_percent').textContent = `${Math.round(team2CreditsPercent)}%`;
+                document.getElementById('team2_tickets_percent').textContent = `${Math.round(team2TicketsPercent)}%`;
+            }
+            
+            // Initial progress bar update
+            updateProgressBars();
+            
+            function updateTable(data) {
+                const map = {
+                    team1_balance: document.getElementById('team1_balance'),
+                    team2_balance: document.getElementById('team2_balance'),
+                    team1_tickets: document.getElementById('team1_tickets'),
+                    team2_tickets: document.getElementById('team2_tickets'),
+                    team1_balance_table: document.getElementById('team1_balance_table'),
+                    team2_balance_table: document.getElementById('team2_balance_table'),
+                    team1_tickets_table: document.getElementById('team1_tickets_table'),
+                    team2_tickets_table: document.getElementById('team2_tickets_table')
+                };
+                
+                Object.keys(map).forEach(function(key) {
+                    if (map[key] && data[key] !== undefined) {
+                        // Store old values for comparison
+                        const oldValue = parseInt(map[key].textContent) || 0;
+                        const newValue = parseInt(data[key]) || 0;
+                        
+                        // Update the value
+                        map[key].textContent = data[key];
+                        
+                        // Add animation class for changes
+                        if (newValue > oldValue) {
+                            map[key].classList.add('highlight');
+                            setTimeout(() => map[key].classList.remove('highlight'), 1000);
+                            
+                            // Celebrate for ticket increases
+                            if (key.includes('tickets') && (newValue > oldValue)) {
+                                const team = key.includes('team1') ? 'team1' : 'team2';
+                                
+                                // Only celebrate if tickets actually increased
+                                if ((team === 'team1' && newValue > prevTeam1Tickets) ||
+                                    (team === 'team2' && newValue > prevTeam2Tickets)) {
+                                    
+                                    createTeamCelebration(team);
+                                    
+                                    // Update previous values
+                                    if (team === 'team1') prevTeam1Tickets = newValue;
+                                    else prevTeam2Tickets = newValue;
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Update progress bars after data changes
+                updateProgressBars();
+            }
+            
+            function createTeamCelebration(team) {
+                const celebrationEl = document.getElementById(`${team}-celebration`);
+                const colors = team === 'team1' ? 
+                    ['#FFB703', '#FB8500', '#E63946'] : 
+                    ['#3A86FF', '#8338EC', '#2A9D8F'];
+                
+                // Show celebration container
+                celebrationEl.style.opacity = '1';
+                
+                // Create celebration booms
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const boom = document.createElement('div');
+                        boom.classList.add('celebration-boom');
+                        
+                        // Random position within team section
+                        boom.style.left = `${Math.random() * 80 + 10}%`;
+                        boom.style.top = `${Math.random() * 80 + 10}%`;
+                        boom.style.borderColor = colors[Math.floor(Math.random() * colors.length)];
+                        celebrationEl.appendChild(boom);
+                        
+                        // Remove after animation completes
+                        setTimeout(() => {
+                            if (boom.parentNode) {
+                                celebrationEl.removeChild(boom);
+                            }
+                        }, 1000);
+                    }, i * 200);
+                }
+                
+                // Hide celebration container after animation
+                setTimeout(() => {
+                    celebrationEl.style.opacity = '0';
+                }, 1500);
+            }
+
+            socket.on('connect', function() {
+                socket.emit('join_game', { game: gameName });
+                console.log('Socket connected');
+            });
+
+            socket.on('score_update', function(payload) {
+                updateTable(payload || {});
+            });
+
+            socket.on('score_error', function(err) {
+                console.error('Score error', err);
+            });
+
+            socket.on('connect_error', function(err) {
+                console.error('Socket connect_error', err);
+            });
+
+            window.addEventListener('beforeunload', function() {
+                socket.emit('leave_game', { game: gameName });
+            });
+            
+            // Create carnival decorations (only balloons, no floating text)
+            createDecorations();
+        });
+        
+        // Create carnival decorations (only balloons)
+        function createDecorations() {
+            const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
+            
+            // Create balloons
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.classList.add('decoration');
+                
+                // Position on sides only (not center)
+                const side = Math.random() > 0.5 ? 'left' : 'right';
+                const offset = Math.random() * 40; // 0-40% from side
+                
+                balloon.style[side] = `${offset}%`;
+                balloon.style.animationDelay = `${Math.random() * 15}s`;
+                balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+                balloon.style.clipPath = 'polygon(50% 0%, 61% 23%, 82% 21%, 68% 40%, 79% 62%, 50% 50%, 21% 62%, 32% 40%, 18% 21%, 39% 23%)';
+                
+                document.body.appendChild(balloon);
+            }
+        }
+    </script>
+</body>
+</html>
