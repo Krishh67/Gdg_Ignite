@@ -939,12 +939,13 @@
                     
                     // Preload the audio files
                     if (!countdownAudio) {
-                        countdownAudio = new Audio('/audio/credits.mp3');
+                        countdownAudio = new Audio('/static/audio/credits.mp3');
                         countdownAudio.volume = 0.7;
                         countdownAudio.preload = 'auto';
+                        
                     }
                     if (!ticketsAudio) {
-                        ticketsAudio = new Audio('/audio/tickets.mp3');
+                        ticketsAudio = new Audio('/static/audio/tickets.mp3');
                         ticketsAudio.volume = 0.7;
                         ticketsAudio.preload = 'auto';
                     }

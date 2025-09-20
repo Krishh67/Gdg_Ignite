@@ -14,7 +14,7 @@
 
 // ===== CONFIGURATION =====
 // Replace with your deployed Flask app URL (e.g., https://your-app.vercel.app)
-const WEBHOOK_URL = 'https://your-app.vercel.app';
+const WEBHOOK_URL = 'https://web-production-fb295.up.railway.app/';
 
 // Replace with your Google Sheet ID (from the URL)
 const SHEET_ID = '1FvEG6CH2tCvpdkvKp3FUj6ePbeIYAoQ56uP7rZQkDgc';
