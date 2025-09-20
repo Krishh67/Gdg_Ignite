@@ -707,44 +707,10 @@
             let maxCredits = Math.max(parseInt("{{ team1_balance }}") || 0, parseInt("{{ team2_balance }}") || 0, 100);
             let maxTickets = Math.max(parseInt("{{ team1_tickets }}") || 0, parseInt("{{ team2_tickets }}") || 0, 100);
             
-            // Timer functionality
-            const timerDisplay = document.getElementById('timer');
-            let timeLeft = 10 * 60; // 10 minutes in seconds
-            let timerInterval = null;
-            
-            function startTimer() {
-                updateTimerDisplay();
-                
-                timerInterval = setInterval(function() {
-                    timeLeft--;
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        timerDisplay.textContent = "TIME'S UP!";
-                        timerDisplay.classList.add('timer-critical');
-                        // Add any end-of-game logic here
-                    } else {
-                        updateTimerDisplay();
-                        
-                        // Change color when time is running out
-                        if (timeLeft <= 60) {
-                            timerDisplay.classList.remove('timer-warning');
-                            timerDisplay.classList.add('timer-critical');
-                        } else if (timeLeft <= 180) {
-                            timerDisplay.classList.add('timer-warning');
-                        }
-                    }
-                }, 1000);
-            }
-            
-            function updateTimerDisplay() {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            // Start the timer
-            startTimer();
+            // Initialize the new countdown system
+            setTimeout(() => {
+                initializeCountdown();
+            }, 500);
             
             // Update progress bars
             function updateProgressBars() {
@@ -914,14 +880,14 @@
         
         // ===== COUNTDOWN ANIMATION AND CONTROLS =====
         
-        // Game state variables
+        // Game state variables (integrated with existing variables)
         let gameTimer = null;
         let isPaused = false;
-        let timeRemaining = 600; // 10 minutes in seconds
         let countdownActive = false;
         
         // Audio element for countdown sound
         let countdownAudio = null;
+        let audioEnabled = false;
         
         // Initialize countdown animation and controls
         function initializeCountdown() {
@@ -939,7 +905,32 @@
             document.getElementById('startBtn').style.display = 'flex';
             document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start Game';
             
+            // Enable audio on first user interaction
+            enableAudioOnInteraction();
+            
             // Don't start timer automatically - wait for user to click Start
+        }
+        
+        // Enable audio on first user interaction (required by some browsers)
+        function enableAudioOnInteraction() {
+            const enableAudio = () => {
+                if (!audioEnabled) {
+                    audioEnabled = true;
+                    console.log('Audio enabled by user interaction');
+                    
+                    // Preload the audio
+                    if (!countdownAudio) {
+                        countdownAudio = new Audio('/audio/credits.mp3');
+                        countdownAudio.volume = 0.7;
+                        countdownAudio.preload = 'auto';
+                    }
+                }
+            };
+            
+            // Enable audio on any user interaction
+            document.addEventListener('click', enableAudio, { once: true });
+            document.addEventListener('keydown', enableAudio, { once: true });
+            document.addEventListener('touchstart', enableAudio, { once: true });
         }
         
         // Start countdown animation from 0 to 500
@@ -1000,16 +991,37 @@
         // Play countdown sound
         function playCountdownSound() {
             try {
+                console.log('Attempting to play countdown sound...');
+                
+                // Check if audio is enabled (user has interacted with page)
+                if (!audioEnabled) {
+                    console.log('Audio not enabled yet - user interaction required');
+                    return;
+                }
+                
                 // Create audio element if it doesn't exist
                 if (!countdownAudio) {
-                    countdownAudio = new Audio('/audio/countdown.mp3');
+                    countdownAudio = new Audio('/audio/credits.mp3');
                     countdownAudio.volume = 0.7;
+                    countdownAudio.preload = 'auto';
+                    
+                    // Add event listeners for debugging
+                    countdownAudio.addEventListener('loadstart', () => console.log('Audio loading started'));
+                    countdownAudio.addEventListener('canplay', () => console.log('Audio can play'));
+                    countdownAudio.addEventListener('error', (e) => console.log('Audio error:', e));
                 }
                 
                 // Play the sound
-                countdownAudio.play().catch(error => {
-                    console.log('Could not play countdown sound:', error);
-                });
+                const playPromise = countdownAudio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Countdown sound played successfully!');
+                    }).catch(error => {
+                        console.log('Could not play countdown sound:', error);
+                        console.log('Audio play failed - this might be due to browser autoplay policy');
+                    });
+                }
             } catch (error) {
                 console.log('Audio not available:', error);
             }
@@ -1070,7 +1082,7 @@
             
             // Reset variables
             isPaused = false;
-            timeRemaining = 600; // 10 minutes
+            timeLeft = 600; // 10 minutes
             countdownActive = false;
             
             // Reset credits to 0
@@ -1133,10 +1145,10 @@
         function startGameTimer() {
             gameTimer = setInterval(() => {
                 if (!isPaused) {
-                    timeRemaining--;
+                    timeLeft--;
                     updateTimerDisplay();
                     
-                    if (timeRemaining <= 0) {
+                    if (timeLeft <= 0) {
                         clearInterval(gameTimer);
                         console.log('Game time finished!');
                         // You can add end game logic here
@@ -1145,21 +1157,15 @@
             }, 1000);
         }
         
-        // Update timer display
+        // Update timer display (integrated with existing function)
         function updateTimerDisplay() {
-            const minutes = Math.floor(timeRemaining / 60);
-            const seconds = timeRemaining % 60;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
             const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             document.getElementById('timer').textContent = display;
         }
         
-        // Initialize countdown when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize countdown after a short delay
-            setTimeout(() => {
-                initializeCountdown();
-            }, 500);
-        });
+        // Initialize countdown when page loads (integrated with existing DOMContentLoaded)
     </script>
 </body>
 </html>
