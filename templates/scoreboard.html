@@ -766,6 +766,11 @@
                         // Update the value
                         map[key].textContent = data[key];
                         
+                        // Store current value for credits animation
+                        if (key.includes('balance')) {
+                            map[key].setAttribute('data-current', newValue);
+                        }
+                        
                         // Add animation class for changes
                         if (newValue > oldValue) {
                             map[key].classList.add('highlight');
@@ -779,6 +784,10 @@
                                 if ((team === 'team1' && newValue > prevTeam1Tickets) ||
                                     (team === 'team2' && newValue > prevTeam2Tickets)) {
                                     
+                                    // Play tickets sound
+                                    playTicketsSound();
+                                    
+                                    // Create celebration with balloons
                                     createTeamCelebration(team);
                                     
                                     // Update previous values
@@ -860,7 +869,7 @@
             const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
             
             // Create balloons
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 2; i++) {
                 const balloon = document.createElement('div');
                 balloon.classList.add('balloon');
                 balloon.classList.add('decoration');
@@ -885,30 +894,40 @@
         let isPaused = false;
         let countdownActive = false;
         
-        // Audio element for countdown sound
+        // Audio elements for sounds
         let countdownAudio = null;
+        let ticketsAudio = null;
         let audioEnabled = false;
         
         // Initialize countdown animation and controls
         function initializeCountdown() {
-            // Set initial credits to 0
+            // Store the actual credit values for animation
+            const team1ActualCredits = parseInt("{{ team1_balance }}") || 0;
+            const team2ActualCredits = parseInt("{{ team2_balance }}") || 0;
+            
+            // Set initial credits to 0 but store actual values
             document.getElementById('team1_balance').textContent = '0';
+            document.getElementById('team1_balance').setAttribute('data-current', team1ActualCredits);
             document.getElementById('team2_balance').textContent = '0';
+            document.getElementById('team2_balance').setAttribute('data-current', team2ActualCredits);
             document.getElementById('team1_balance_table').textContent = '0';
             document.getElementById('team2_balance_table').textContent = '0';
             
-            // Setup control buttons
+            // Setup control buttons (only for timer)
             setupControlButtons();
             
-            // Set initial button states (game not started yet)
+            // Set initial button states (timer not started yet)
             document.getElementById('pauseBtn').style.display = 'none';
             document.getElementById('startBtn').style.display = 'flex';
-            document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start Game';
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start Timer';
             
             // Enable audio on first user interaction
             enableAudioOnInteraction();
             
-            // Don't start timer automatically - wait for user to click Start
+            // Start credits animation after 2 seconds (automatic)
+            setTimeout(() => {
+                startCreditsAnimation();
+            }, 2000);
         }
         
         // Enable audio on first user interaction (required by some browsers)
@@ -918,11 +937,16 @@
                     audioEnabled = true;
                     console.log('Audio enabled by user interaction');
                     
-                    // Preload the audio
+                    // Preload the audio files
                     if (!countdownAudio) {
                         countdownAudio = new Audio('/audio/credits.mp3');
                         countdownAudio.volume = 0.7;
                         countdownAudio.preload = 'auto';
+                    }
+                    if (!ticketsAudio) {
+                        ticketsAudio = new Audio('/audio/tickets.mp3');
+                        ticketsAudio.volume = 0.7;
+                        ticketsAudio.preload = 'auto';
                     }
                 }
             };
@@ -933,7 +957,39 @@
             document.addEventListener('touchstart', enableAudio, { once: true });
         }
         
-        // Start countdown animation from 0 to 500
+        // Start credits animation from 0 to actual player credits
+        function startCreditsAnimation() {
+            if (countdownActive) return;
+            countdownActive = true;
+            
+            // Play credits sound
+            playCountdownSound();
+            
+            // Add glow effect to credit displays
+            document.querySelector('.team-1 .credit-display').classList.add('countdown-active');
+            document.querySelector('.team-2 .credit-display').classList.add('countdown-active');
+            
+            // Get actual credits from the current data (from webhook or initial values)
+            const team1TargetCredits = parseInt(document.getElementById('team1_balance').getAttribute('data-current') || '{{ team1_balance }}') || 0;
+            const team2TargetCredits = parseInt(document.getElementById('team2_balance').getAttribute('data-current') || '{{ team2_balance }}') || 0;
+            
+            // Animate Team 1 credits from 0 to actual credits
+            animateCredits('team1_balance', 0, team1TargetCredits, 2000);
+            animateCredits('team1_balance_table', 0, team1TargetCredits, 2000);
+            
+            // Animate Team 2 credits from 0 to actual credits
+            animateCredits('team2_balance', 0, team2TargetCredits, 2000);
+            animateCredits('team2_balance_table', 0, team2TargetCredits, 2000);
+            
+            // Remove glow effect after animation
+            setTimeout(() => {
+                document.querySelector('.team-1 .credit-display').classList.remove('countdown-active');
+                document.querySelector('.team-2 .credit-display').classList.remove('countdown-active');
+                countdownActive = false;
+            }, 2000);
+        }
+        
+        // Start countdown animation from 0 to 500 (old function - keeping for compatibility)
         function startCountdownAnimation() {
             if (countdownActive) return;
             countdownActive = true;
@@ -1027,6 +1083,39 @@
             }
         }
         
+        // Play tickets sound when tickets increase
+        function playTicketsSound() {
+            try {
+                console.log('Playing tickets sound...');
+                
+                // Check if audio is enabled
+                if (!audioEnabled) {
+                    console.log('Audio not enabled yet');
+                    return;
+                }
+                
+                // Create tickets audio if it doesn't exist
+                if (!ticketsAudio) {
+                    ticketsAudio = new Audio('/audio/tickets.mp3');
+                    ticketsAudio.volume = 0.7;
+                    ticketsAudio.preload = 'auto';
+                }
+                
+                // Play the sound
+                const playPromise = ticketsAudio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Tickets sound played successfully!');
+                    }).catch(error => {
+                        console.log('Could not play tickets sound:', error);
+                    });
+                }
+            } catch (error) {
+                console.log('Tickets audio not available:', error);
+            }
+        }
+        
         // Setup control buttons
         function setupControlButtons() {
             const resetBtn = document.getElementById('resetBtn');
@@ -1057,12 +1146,9 @@
             });
         }
         
-        // Start the game (initial start)
+        // Start the timer (initial start)
         function startGame() {
-            // Start countdown animation
-            startCountdownAnimation();
-            
-            // Start game timer
+            // Start game timer only
             startGameTimer();
             
             // Update button states
@@ -1070,32 +1156,19 @@
             document.getElementById('pauseBtn').style.display = 'flex';
             document.getElementById('pauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
             
-            console.log('Game started!');
+            console.log('Timer started!');
         }
         
-        // Reset game to initial state
+        // Reset timer to initial state
         function resetGame() {
             // Stop game timer
             if (gameTimer) {
                 clearInterval(gameTimer);
             }
             
-            // Reset variables
+            // Reset timer variables
             isPaused = false;
             timeLeft = 600; // 10 minutes
-            countdownActive = false;
-            
-            // Reset credits to 0
-            document.getElementById('team1_balance').textContent = '0';
-            document.getElementById('team2_balance').textContent = '0';
-            document.getElementById('team1_balance_table').textContent = '0';
-            document.getElementById('team2_balance_table').textContent = '0';
-            
-            // Reset tickets to 0
-            document.getElementById('team1_tickets').textContent = '0';
-            document.getElementById('team2_tickets').textContent = '0';
-            document.getElementById('team1_tickets_table').textContent = '0';
-            document.getElementById('team2_tickets_table').textContent = '0';
             
             // Reset timer display
             updateTimerDisplay();
@@ -1103,11 +1176,9 @@
             // Reset button states (back to initial state)
             document.getElementById('pauseBtn').style.display = 'none';
             document.getElementById('startBtn').style.display = 'flex';
-            document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start Game';
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start Timer';
             
-            // Don't automatically restart - wait for user to click Start
-            
-            console.log('Game reset!');
+            console.log('Timer reset!');
         }
         
         // Pause the game
