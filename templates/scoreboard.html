@@ -813,7 +813,7 @@
                 celebrationEl.style.opacity = '1';
                 
                 // Create celebration booms
-                for (let i = 0; i < 254; i++) {
+                for (let i = 0; i < 50; i++) {
                     setTimeout(() => {
                         const boom = document.createElement('div');
                         boom.classList.add('celebration-boom');
@@ -830,7 +830,7 @@
                                 celebrationEl.removeChild(boom);
                             }
                         }, 1000);
-                    }, i * 16);
+                    }, i * 170);
                 }
                 
                 // Hide celebration container after animation
@@ -869,7 +869,7 @@
             const colors = ['#E63946', '#3A86FF', '#FFB703', '#2A9D8F', '#8338EC'];
             
             // Create balloons
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < 20; i++) {
                 const balloon = document.createElement('div');
                 balloon.classList.add('balloon');
                 balloon.classList.add('decoration');
