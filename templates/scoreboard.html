@@ -813,7 +813,7 @@
                 celebrationEl.style.opacity = '1';
                 
                 // Create celebration booms
-                for (let i = 0; i < 25; i++) {
+                for (let i = 0; i < 254; i++) {
                     setTimeout(() => {
                         const boom = document.createElement('div');
                         boom.classList.add('celebration-boom');
@@ -830,7 +830,7 @@
                                 celebrationEl.removeChild(boom);
                             }
                         }, 1000);
-                    }, i * 200);
+                    }, i * 16);
                 }
                 
                 // Hide celebration container after animation
